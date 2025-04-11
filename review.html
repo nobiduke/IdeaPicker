@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Review Your Ideas</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+      }
+      h1 {
+        margin-top: 50px;
+        text-align: center;
+        padding: 20px;
+      }
+      .section {
+        margin: 20px;
+      }
+      .idea-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .idea {
+        background: white;
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .idea img {
+        width: 80px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-right: 10px;
+      }
+      .idea-info {
+        flex-grow: 1;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 10px;
+        cursor: pointer;
+      }
+      img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+      }
+    </style>
+  </head>
+  <body>
+    <a
+      href="index.html"
+      style="
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background-color: #6c757d;
+        color: white;
+        padding: 10px 16px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 16px;
+        z-index: 999;
+      "
+      >Home</a
+    >
+
+    <h1>Review Your Ideas</h1>
+
+    <div class="section">
+      <h2>Accepted Ideas</h2>
+      <div id="accepted" class="idea-list"></div>
+    </div>
+
+    <div class="section">
+      <h2>Rejected Ideas</h2>
+      <div id="rejected" class="idea-list"></div>
+    </div>
+
+    <script>
+      let keptIdeas = JSON.parse(localStorage.getItem("keptIdeas") || "[]");
+      let rejectedIdeas = JSON.parse(
+        localStorage.getItem("rejectedIdeas") || "[]"
+      );
+
+      const acceptedContainer = document.getElementById("accepted");
+      const rejectedContainer = document.getElementById("rejected");
+
+      function render() {
+        acceptedContainer.innerHTML = "";
+        rejectedContainer.innerHTML = "";
+
+        keptIdeas.forEach((idea, index) => {
+          acceptedContainer.appendChild(
+            createIdeaCard(idea, () =>
+              switchIdea(keptIdeas, rejectedIdeas, index)
+            )
+          );
+        });
+
+        rejectedIdeas.forEach((idea, index) => {
+          rejectedContainer.appendChild(
+            createIdeaCard(idea, () =>
+              switchIdea(rejectedIdeas, keptIdeas, index)
+            )
+          );
+        });
+
+        localStorage.setItem("keptIdeas", JSON.stringify(keptIdeas));
+        localStorage.setItem("rejectedIdeas", JSON.stringify(rejectedIdeas));
+      }
+
+      function createIdeaCard(idea, onSwitch) {
+        const card = document.createElement("div");
+        card.className = "idea";
+        card.innerHTML = `
+        <img src="${idea.img}" alt="${idea.name}" />
+        <div class="idea-info">
+          <strong>${idea.name}</strong><br>
+          <a href="https://www.google.com/search?q=${idea.name
+              .split(" ")
+              .join("+")}" target="_blank">More Info</a>
+        </div>
+      `;
+        const btn = document.createElement("button");
+        btn.textContent = "Switch";
+        btn.onclick = onSwitch;
+        card.appendChild(btn);
+        return card;
+      }
+
+      function switchIdea(fromList, toList, index) {
+        const idea = fromList.splice(index, 1)[0];
+        toList.push(idea);
+        render();
+      }
+
+      render();
+    </script>
+  </body>
+</html>

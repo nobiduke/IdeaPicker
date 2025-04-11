@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Swipe Ideas</title>
+    <style>
+      body {
+        margin: 0;
+        background: #eee;
+        font-family: sans-serif;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      .card-container {
+        position: relative;
+        width: 300px;
+        height: 400px;
+      }
+      .card {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        transition: transform 0.3s ease-out;
+        cursor: grab;
+        user-select: none;
+      }
+      .card * {
+        user-select: none;
+      }
+
+      .card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+      }
+      .card-content {
+        padding: 20px;
+        text-align: center;
+      }
+      .card a {
+        display: inline-block;
+        margin-top: 10px;
+        text-decoration: none;
+        color: #007bff;
+      }
+      img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+      }
+      .swipe-label {
+        position: absolute;
+        top: 20px;
+        font-size: 24px;
+        font-weight: bold;
+        padding: 10px 20px;
+        border-radius: 5px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        z-index: 2;
+      }
+
+      .keep {
+        right: 20px;
+        background-color: #28a745;
+        color: white;
+      }
+
+      .reject {
+        left: 20px;
+        background-color: #dc3545;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <a
+      href="index.html"
+      style="
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background-color: #6c757d;
+        color: white;
+        padding: 10px 16px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 16px;
+        z-index: 999;
+      "
+      >← Home</a
+    >
+
+    <div class="card-container" id="cardContainer"></div>
+    <button
+      id="reviewBtn"
+      style="
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        z-index: 10;
+      "
+    >
+      Review Your Ideas
+    </button>
+
+    <script>
+      //   const swingIdeas = [
+      //     {
+      //       name: "Basic Rock Step + Triple Step",
+      //       img: "https://images.unsplash.com/photo-1588776814546-ec7e9c1d6d1a",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Underarm Turn (Follower)",
+      //       img: "https://images.unsplash.com/photo-1616627986310-0e3e1e1e1e1e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Underarm Turn (Leader)",
+      //       img: "https://images.unsplash.com/photo-1603052877084-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Cuddle (Sweetheart Position)",
+      //       img: "https://images.unsplash.com/photo-1594824476964-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Tuck Turn",
+      //       img: "https://images.unsplash.com/photo-1531058020387-3be344556be6",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Open Break",
+      //       img: "https://images.unsplash.com/photo-1588776814546-ec7e9c1d6d1a",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Inside Turn",
+      //       img: "https://images.unsplash.com/photo-1616627986310-0e3e1e1e1e1e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Outside Turn",
+      //       img: "https://images.unsplash.com/photo-1603052877084-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Change Places",
+      //       img: "https://images.unsplash.com/photo-1594824476964-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Sugar Push (Swing Push Break)",
+      //       img: "https://images.unsplash.com/photo-1531058020387-3be344556be6",
+      //       link: "#",
+      //     },
+
+      //     {
+      //       name: "Double Underarm Turn",
+      //       img: "https://images.unsplash.com/photo-1588776814546-ec7e9c1d6d1a",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Wrap In and Wrap Out",
+      //       img: "https://images.unsplash.com/photo-1616627986310-0e3e1e1e1e1e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Hammerlock Turn",
+      //       img: "https://images.unsplash.com/photo-1603052877084-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Butterfly Turn",
+      //       img: "https://images.unsplash.com/photo-1594824476964-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Turning Basic",
+      //       img: "https://images.unsplash.com/photo-1531058020387-3be344556be6",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Boogie Drop Turns",
+      //       img: "https://images.unsplash.com/photo-1588776814546-ec7e9c1d6d1a",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Arm Slide Turn",
+      //       img: "https://images.unsplash.com/photo-1616627986310-0e3e1e1e1e1e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Crossover Breaks",
+      //       img: "https://images.unsplash.com/photo-1603052877084-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+
+      //     {
+      //       name: "Charleston Kick Back & Forth",
+      //       img: "https://images.unsplash.com/photo-1594824476964-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Side-by-Side Charleston Kicks",
+      //       img: "https://images.unsplash.com/photo-1531058020387-3be344556be6",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Kick Ball Change Combos",
+      //       img: "https://images.unsplash.com/photo-1588776814546-ec7e9c1d6d1a",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Drop + Catch Hand Variations",
+      //       img: "https://images.unsplash.com/photo-1616627986310-0e3e1e1e1e1e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Shim Sham Breakout",
+      //       img: "https://images.unsplash.com/photo-1603052877084-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Side Pass with Flair",
+      //       img: "https://images.unsplash.com/photo-1594824476964-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Pop and Lock Triple Step",
+      //       img: "https://images.unsplash.com/photo-1531058020387-3be344556be6",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Kick Step Swivels",
+      //       img: "https://images.unsplash.com/photo-1588776814546-ec7e9c1d6d1a",
+      //       link: "#",
+      //     },
+
+      //     {
+      //       name: "Shoulder Slide",
+      //       img: "https://images.unsplash.com/photo-1616627986310-0e3e1e1e1e1e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Dip with Head Roll",
+      //       img: "https://images.unsplash.com/photo-1603052877084-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Low Dip with Back Lean",
+      //       img: "https://images.unsplash.com/photo-1594824476964-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Quick Catch & Cuddle Dip",
+      //       img: "https://images.unsplash.com/photo-1531058020387-3be344556be6",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "The Promenade Pose",
+      //       img: "https://images.unsplash.com/photo-1588776814546-ec7e9c1d6d1a",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Lean and Point Combo",
+      //       img: "https://images.unsplash.com/photo-1616627986310-0e3e1e1e1e1e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Pretzel Arm Tangle Release",
+      //       img: "https://images.unsplash.com/photo-1603052877084-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+
+      //     {
+      //       name: "Reverse Turn",
+      //       img: "https://images.unsplash.com/photo-1594824476964-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Inside-Outside Spin Combo",
+      //       img: "https://images.unsplash.com/photo-1531058020387-3be344556be6",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "360° Triple Step Pivot",
+      //       img: "https://images.unsplash.com/photo-1588776814546-ec7e9c1d6d1a",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Rolling Tuck-In",
+      //       img: "https://images.unsplash.com/photo-1616627986310-0e3e1e1e1e1e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Figure 8 Turns",
+      //       img: "https://images.unsplash.com/photo-1603052877084-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Circle Around with Basic Turns",
+      //       img: "https://images.unsplash.com/photo-1594824476964-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Crossbody Lead with Rock Step",
+      //       img: "https://images.unsplash.com/photo-1531058020387-3be344556be6",
+      //       link: "#",
+      //     },
+
+      //     {
+      //       name: "Jazz Hands Exit",
+      //       img: "https://images.unsplash.com/photo-1588776814546-ec7e9c1d6d1a",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Side Step Claps",
+      //       img: "https://images.unsplash.com/photo-1616627986310-0e3e1e1e1e1e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Head Nods + Body Pops",
+      //       img: "https://images.unsplash.com/photo-1603052877084-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Finger Point Spin Outs",
+      //       img: "https://images.unsplash.com/photo-1594824476964-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Shoe Slide Entry",
+      //       img: "https://images.unsplash.com/photo-1531058020387-3be344556be6",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "High Five Catch",
+      //       img: "https://images.unsplash.com/photo-1588776814546-ec7e9c1d6d1a",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Moonwalk-Inspired Slide",
+      //       img: "https://images.unsplash.com/photo-1616627986310-0e3e1e1e1e1e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Spin & Sit Combo",
+      //       img: "https://images.unsplash.com/photo-1603052877084-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "“Almost Dip” Tease Move",
+      //       img: "https://images.unsplash.com/photo-1594824476964-3f7a3c3f1c3e",
+      //       link: "#",
+      //     },
+      //     {
+      //       name: "Final Pose with Point to Crowd",
+      //       img: "https://images.unsplash.com/photo-1531058020387-3be344556be6",
+      //       link: "#",
+      //     },
+      //   ];
+
+      const allIdeas = [
+        {
+          name: "Drone Videography",
+          img: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        },
+        {
+          name: "Live Streaming the Ceremony",
+          img: "https://images.unsplash.com/photo-1589976584396-cf8baebe2beb?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        },
+        {
+          name: "Custom Ceremony Arch Designs",
+          img: "https://images.unsplash.com/photo-1629744418692-345355518e78?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        },
+        {
+          name: "Personalized Vows Displayed on Screens",
+          img: "https://images.unsplash.com/photo-1597333936102-0d9f997042ec?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        },
+        {
+          name: "Flower Petal Confetti Toss",
+          img: "https://images.unsplash.com/photo-1588878237213-a2d39308dfdb?q=80&w=1972&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        },
+        {
+          name: "Ring Warming Ritual",
+          img: "https://images.unsplash.com/photo-1735618184849-32bf40dbdadf?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        },
+        {
+          name: "Live Musicians (Harpist/Quartet)",
+          img: "https://images.unsplash.com/photo-1680695762257-ec0297a4d61b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        },
+        {
+          name: "Outdoor Garden Ceremony",
+          img: "https://images.unsplash.com/photo-1617610615659-1ca8575b968c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        },
+        {
+          name: "Rustic Barn Ceremony Setup",
+          img: "https://images.unsplash.com/photo-1607047795460-9521dfad2269?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        },
+        {
+          name: "Beachfront Altar Setup",
+          img: "https://images.unsplash.com/photo-1576694667642-6f289dd54187?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        },
+        {
+          name: "Aisle of Candles",
+          img: "https://apis.xogrp.com/media-api/images/b9892c70-a350-11e4-843f-22000aa61a3e",
+        },
+        {
+          name: "Ceremony in the Round",
+          img: "https://i.ytimg.com/vi/SSBeToUajpk/maxresdefault.jpg",
+        },
+        {
+          name: "Tree Planting Unity Ritual",
+          img: "https://www.weddingbee.com/wp-content/uploads/2021/11/AdobeStock_402821305-644333.jpg",
+        },
+        {
+          name: "Sand Ceremony",
+          img: "https://ablueridgewedding.com/wp-content/uploads/2014/04/Sand-Ceremony-1500.jpg",
+        },
+        {
+          name: "Handfasting Ritual",
+          img: "https://humanists.uk/wp-content/uploads/Humanism-photo-credit-Simple-Tapestry-010-1-1068x712.jpg",
+        },
+        {
+          name: "Mini Chapel Installations",
+          img: "https://images.squarespace-cdn.com/content/v1/5fa1c5945b33026582c303b5/1652967690094-VGRKITOZEAXJ02ZN4IZ1/Loganville-Georgia-Small-Wedding-35.jpg",
+        },
+        {
+          name: "Interactive Guest Vow Wall",
+          img: "https://m.media-amazon.com/images/S/aplus-media-library-service-media/44026746-00c4-4646-96c5-aa7533e4cc2a.__CR0,887,2481,1535_PT0_SX970_V1___.jpg",
+        },
+        {
+          name: "Custom Aisle Runners with Quotes",
+          img: "https://www.victorystore.com/cdn/shop/products/custom-wedding-aisle-runner-sw.jpg?v=1631880778&width=1445",
+        },
+        {
+          name: "Sky Lantern Release Post-Ceremony",
+          img: "https://weddingsparklersnow.com/cdn/shop/files/sky-lantern-wedding-sparkers-now.jpg?v=1696526777",
+        },
+        {
+          name: "Butterfly Release",
+          img: "https://www.butterflynursery.com/wp-content/uploads/2018/06/butterfly-wedding3.jpg",
+        },
+        {
+          name: "Eco-friendly Confetti Toss",
+          img: "https://www.treehugger.com/thmb/F2N_suyAy3hjqT5_H-lnCy-2TfE=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/__opt__aboutcom__coeus__resources__content_migration__treehugger__images__2019__05__confetti-2-4bfaba9eb55049038187e6ffe41ea5b3.jpg",
+        },
+        {
+          name: "Charitable Unity Ceremony",
+          img: "https://www.centier.com/images/default-source/blog/how-to-check-if-a-charity-is-legit-hero.png?sfvrsn=b5a80196_1",
+        },
+        {
+          name: "Choreographed Walk Down the Aisle",
+          img: "https://www.dancefacts.net/images/dancefacts/silhouette-dance-8.jpg",
+        },
+        {
+          name: "Flower Dog or Cat Ring Bearer",
+          img: "https://i.imgur.com/J0Midyx.jpeg",
+        },
+        {
+          name: "Personal Officiant (Friend/Family)",
+          img: "https://images.squarespace-cdn.com/content/v1/5b9ec25da2772c07efba9f0a/1551379540044-H4TYHEJV8EY9U7TR180U/Just+Ari+Elopement-finals-0103.jpg",
+        },
+        {
+          name: "Candle Lighting Ceremony",
+          img: "https://www.theknot.com/tk-media/images/25e3994e-57a0-4138-8b38-bf2e3a4f3954.jpg",
+        },
+        {
+          name: "Poetry Reading by Guests",
+          img: "https://www.theknot.com/tk-media/images/1dfa5cc6-00c5-4ede-a7fd-2f3013c43e91.jpg",
+        },
+        {
+          name: "Ceremony Under a Tree",
+          img: "https://pinelakeranch.com/wp-content/uploads/2021/08/tree14_result.jpg",
+        },
+        {
+          name: "Drone Flower Drop",
+          img: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj04vh-K2_bLh9mOj41mKvm-Fnuzv0bppeAAcuCooTEMGUlMRqQm1pDMgb6iS-Qlb1ACihwNsAWvWf4TT_IE6bee-ouMdG3DMdXK4wmDgUymhq1d6iLzvQAgTkJlkQcQarETWGdMqGqa9Kb/s1600/1.jpg",
+        },
+        {
+          name: "Floating Altar on Water",
+          img: "https://saratogaliving.com/wp-content/uploads/2021/02/weddingonthewater_fdw231.jpg",
+        },
+        {
+          name: "Ceremony at Sunset",
+          img: "https://cdn.shopify.com/s/files/1/0553/6422/3136/files/Jodi-B-Photography-4-_jodibphotography.png",
+        },
+        {
+          name: "Custom Song Performance",
+          img: "https://m.media-amazon.com/images/I/41s2ktwoaqL._UXNaN_FMjpg_QL85_.jpg",
+        },
+        {
+          name: "Memory Chair for Loved Ones",
+          img: "https://i.etsystatic.com/11520654/r/il/c832dc/3834465494/il_570xN.3834465494_mow6.jpg",
+        },
+        {
+          name: "Group Singing Segment",
+          img: "https://www.interkultur.com/fileadmin/_processed_/f/9/csm_N-1-20221109-NoltePhotography_bd430b3f14.jpg",
+        },
+        {
+          name: "Interactive Guest Blessing Cards",
+          img: "https://i.etsystatic.com/19458228/r/il/0b2037/1989209153/il_570xN.1989209153_t197.jpg",
+        },
+        {
+          name: "Silent Ceremony with Headphones",
+          img: "https://www.destinationevents.net/wp-content/uploads/silent-wedding-21.jpg",
+        },
+        {
+          name: "First Look Walk Instead of Aisle",
+          img: "https://immarykatherine.com/wp-content/uploads/2019/06/25-8794-post/RY3A1782.jpg",
+        },
+        {
+          name: "Guest Circle of Blessings",
+          img: "https://cdn0.weddingwire.com/article-gallery-o/00000/3_2/960/jpg/editorial-images-2019/3-march/kim/bride-talking-to-guests.jpeg",
+        },
+        {
+          name: "Bubble Exit Instead of Confetti",
+          img: "https://mattiewezah.com/wp-content/uploads/2023/08/colorful-bubble-exit-hampton-roads-wedding-in-va-beach-00003.jpg",
+        },
+        {
+          name: "Officiant in Costume/Theme",
+          img: "https://offbeatwed.com/wp-content/uploads/2016/04/22091887395_f3bbfaa21f_k-800x1200.jpg",
+        },
+        {
+          name: "Mini Ceremony Booklets",
+          img: "https://www.beaconln.com/wp-content/uploads/2015/03/allwhiteceremonybooklets.jpg",
+        },
+        {
+          name: "Themed Ceremony Decor (Boho, Gatsby, etc.)",
+          img: "https://www.elegantweddinginvites.com/wedding-blog/wp-content/uploads/2015/12/gorgeous-fairytale-wedding-ceremony-decoration-ideas.jpg",
+        },
+        {
+          name: "Aisle Dancedown or Parade",
+          img: "https://mindy-weiss.s3.amazonaws.com/wp-content/uploads/2021/08/26161938/wedding-parade.jpg",
+        },
+        {
+          name: "Vow Exchange on a Boat or Dock",
+          img: "https://apis.xogrp.com/media-api/images/c71d92c4-3143-11e7-b589-12072ec58d1a",
+        },
+        {
+          name: "3D Printed Unity Sculpture",
+          img: "https://www.unityinglass.com/cdn/shop/products/sand_ceremony_idea_2000x.jpg?v=1592690618",
+        },
+        {
+          name: "Custom Unity Cocktail",
+          img: "https://treasuredceremonies.co.uk/wp-content/uploads/2019/01/Celebrant-Wales-Port-toast.jpg",
+        },
+        {
+          name: "Surprise Flash Mob",
+          img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwXk-qDFDT8YAT30VBSozMfHH_gLfZuF7ZwQ&s",
+        },
+        {
+          name: "Unity Painting Ritual",
+          img: "https://i.etsystatic.com/15868399/r/il/6c8fa5/1335864614/il_fullxfull.1335864614_38ix.jpg",
+        },
+        {
+          name: "Live Painter Capturing Ceremony",
+          img: "https://heatherwolfeart.com/cdn/shop/products/image_547f899b-3f5c-456b-a4d6-7f3e24060bf5.jpg?v=1659362929&width=1445",
+        },
+      ];
+
+      // Load already sorted ideas
+      const keptIdeas = JSON.parse(localStorage.getItem("keptIdeas") || "[]");
+      const rejectedIdeas = JSON.parse(
+        localStorage.getItem("rejectedIdeas") || "[]"
+      );
+
+      const sortedNames = new Set(
+        [...keptIdeas, ...rejectedIdeas].map((idea) => idea.name)
+      );
+
+      const unsortedIdeas = allIdeas.filter(
+        (idea) => !sortedNames.has(idea.name)
+      );
+
+      const container = document.getElementById("cardContainer");
+
+      shuffle(unsortedIdeas);
+
+      let displayIndex = 0;
+      let maxVisible = 3;
+
+      function loadNextCard() {
+        const idea = unsortedIdeas[displayIndex];
+        const card = document.createElement("div");
+        card.className = "card";
+        card.dataset.index = displayIndex;
+        card.innerHTML = `
+          <img src="${idea.img}" alt="${idea.name}" />
+          <div class="swipe-label keep">KEEP</div>
+          <div class="swipe-label reject">REJECT</div>
+          <div class="card-content">
+            <h2>${idea.name}</h2>
+            <a href="https://www.google.com/search?q=${idea.name
+              .split(" ")
+              .join("+")}" target="_blank">More Info</a>
+          </div>
+        `;
+        container.insertBefore(card, container.firstChild);
+        enableSwipe(card, idea);
+        displayIndex++;
+      }
+
+      function loadInitialCards() {
+        for (let i = 0; i < maxVisible && i < unsortedIdeas.length; i++) {
+          loadNextCard();
+        }
+      }
+
+      function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+      }
+
+      function enableSwipe(card, idea) {
+        let startX, currentX, dx;
+        let startTime;
+        let isDragging = false;
+        const keepLabel = card.querySelector(".keep");
+        const rejectLabel = card.querySelector(".reject");
+
+        const startDrag = (x) => {
+          isDragging = true;
+          startX = x;
+          dx = 0;
+          startTime = Date.now();
+        };
+
+        const moveDrag = (x) => {
+          if (!isDragging) return;
+          currentX = x;
+          dx = currentX - startX;
+          card.style.transform = `translateX(${dx}px) rotate(${dx / 10}deg)`;
+          if (dx > 20) {
+            keepLabel.style.opacity = "1";
+            rejectLabel.style.opacity = "0";
+          } else if (dx < -20) {
+            keepLabel.style.opacity = "0";
+            rejectLabel.style.opacity = "1";
+          } else {
+            keepLabel.style.opacity = "0";
+            rejectLabel.style.opacity = "0";
+          }
+        };
+
+        const endDrag = () => {
+          if (!isDragging) return;
+          isDragging = false;
+
+          const timeDiff = Date.now() - startTime;
+          const velocity = dx / timeDiff;
+          keepLabel.style.opacity = "0";
+          rejectLabel.style.opacity = "0";
+
+          const minVelocity = 0.3;
+          const minDistance = 100;
+
+          if (Math.abs(velocity) > minVelocity || Math.abs(dx) > minDistance) {
+            const direction = dx > 0 ? 1 : -1;
+            animateCardOffScreen(card, direction, idea);
+          } else {
+            // Snap back
+            card.style.transition = "transform 0.3s ease-out";
+            card.style.transform = "translateX(0)";
+            setTimeout(() => {
+              card.style.transition = "";
+            }, 300);
+          }
+        };
+
+        // Mouse events
+        card.addEventListener("mousedown", (e) => {
+          e.preventDefault();
+          startDrag(e.clientX);
+          document.addEventListener("mousemove", onMouseMove);
+          document.addEventListener("mouseup", onMouseUp);
+        });
+
+        const onMouseMove = (e) => moveDrag(e.clientX);
+        const onMouseUp = (e) => {
+          document.removeEventListener("mousemove", onMouseMove);
+          document.removeEventListener("mouseup", onMouseUp);
+          endDrag();
+        };
+
+        // Touch events
+        card.addEventListener("touchstart", (e) => {
+          if (e.touches.length > 0) startDrag(e.touches[0].clientX);
+        });
+        card.addEventListener("touchmove", (e) => {
+          if (e.touches.length > 0) moveDrag(e.touches[0].clientX);
+        });
+        card.addEventListener("touchend", () => endDrag());
+      }
+
+      function animateCardOffScreen(card, direction, idea) {
+        let x = parseFloat(
+          card.style.transform.match(/translateX\((-?\d+)/)?.[1] || "0"
+        );
+        const speed = 20 * direction;
+
+        function animate() {
+          x += speed;
+          card.style.transform = `translateX(${x}px) rotate(${x / 10}deg)`;
+          if (Math.abs(x) < window.innerWidth + 300) {
+            requestAnimationFrame(animate);
+          } else {
+            if (direction > 0) {
+              keptIdeas.push(idea);
+              console.log("Kept:", keptIdeas);
+            } else {
+              rejectedIdeas.push(idea);
+              console.log("Rejected:", rejectedIdeas);
+            }
+            card.remove();
+            loadNextCard();
+          }
+        }
+
+        requestAnimationFrame(animate);
+      }
+      document.getElementById("reviewBtn").addEventListener("click", () => {
+        localStorage.setItem("keptIdeas", JSON.stringify(keptIdeas));
+        localStorage.setItem("rejectedIdeas", JSON.stringify(rejectedIdeas));
+        window.location.href = "review.html";
+      });
+
+      // MAIN
+      loadInitialCards();
+    </script>
+  </body>
+</html>

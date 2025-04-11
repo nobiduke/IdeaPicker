@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Idea Chooser</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+      .container {
+        padding: 50px;
+      }
+      a.button {
+        display: inline-block;
+        margin-top: 30px;
+        padding: 15px 30px;
+        background-color: #007bff;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 18px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Wedding Idea Chooser</h1>
+      <p>Swipe right to keep an idea, swipe left to reject it.</p>
+      <a class="button" href="swipe.html">Start Swiping</a>
+      <br /><br />
+      <button id="resetBtn" class="button" style="background-color: #dc3545">
+        Reset Swipes
+      </button>
+    </div>
+    <script>
+      document.getElementById("resetBtn").addEventListener("click", () => {
+        localStorage.removeItem("keptIdeas");
+        localStorage.removeItem("rejectedIdeas");
+        alert("Swipes have been reset!");
+      });
+    </script>
+  </body>
+</html>
